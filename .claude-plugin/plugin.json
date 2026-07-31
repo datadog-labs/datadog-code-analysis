@@ -1,0 +1,105 @@
+{
+  "name": "datadog-code-analysis",
+  "version": "1.0.0",
+  "description": "Surfaces Datadog best practices and telemetry guidance at coding time, so your agent considers observability from the start.",
+  "author": {
+    "name": "Datadog",
+    "email": "no-reply@datadoghq.com"
+  },
+  "userConfig": {
+    "dd_site": {
+      "type": "string",
+      "title": "Datadog site",
+      "description": "Your organization's Datadog site -- see the \"Site Parameter\" field at https://docs.datadoghq.com/getting_started/site/#access-the-datadog-site (e.g. datadoghq.com, datadoghq.eu)."
+    },
+    "dd_api_key": {
+      "type": "string",
+      "title": "Datadog API key",
+      "description": "Identifies your Datadog organization and authenticates API requests.",
+      "sensitive": true
+    },
+    "dd_app_key": {
+      "type": "string",
+      "title": "Datadog Application key",
+      "description": "Used together with the API key to authenticate programmatic API access.",
+      "sensitive": true
+    },
+    "enable_on_commit_telemetry_review": {
+      "type": "boolean",
+      "title": "Enable on-commit telemetry review",
+      "description": "Run an agentic telemetry review after commits, checking the diff for observability gaps or violations of best practices. Findings are surfaced back into your session.",
+      "default": false
+    },
+    "enable_datadog_resource_suggestions": {
+      "type": "boolean",
+      "title": "Enable Datadog resource suggestions",
+      "description": "After commits, nudge the agent to consider suggesting relevant Datadog resource creation",
+      "default": false
+    }
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session_start.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/reviewer.py",
+            "if": "Bash(git commit:*)",
+            "asyncRewake": true
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/feedback_nudge.py",
+            "if": "Bash(git commit:*)"
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/resource_nudge.py",
+            "if": "Bash(git commit:*)"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/coding_session.py",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/capture_baseline.py",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/edit_nudge.py"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/telemetry.py",
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}

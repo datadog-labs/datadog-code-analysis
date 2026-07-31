@@ -1,0 +1,8 @@
+{
+  "name": "datadog-code-analysis",
+  "metadata": {
+    "description": "Surfaces Datadog best practices and telemetry guidance at coding time, so your agent considers observability from the start."
+  },
+  "owner": { "name": "Datadog", "email": "no-reply@datadoghq.com" },
+  "plugins": [{ "name": "datadog-code-analysis", "source": "./" }]
+}
