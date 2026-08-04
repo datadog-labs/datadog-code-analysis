@@ -1,9 +1,0 @@
-version: 1
-acknowledgements:
-- id: 13d22b79edd7e7905c162cf2ab4dfd482121468cbd91eea9b9f6358100099a02
-  check_id: license_3rdparty_csv_present
-  title: Missing LICENSE-3rdparty.csv
-  evidence_pattern: No LICENSE-3rdparty.csv found in repository root.
-  reason: No third-party dependencies in this repo
-  acknowledged_at: '2026-07-31T15:38:47.327606+00:00'
-  acknowledged_by: Vyas Srinivasan
