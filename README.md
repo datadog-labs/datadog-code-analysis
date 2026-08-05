@@ -10,9 +10,9 @@ Coding agents struggle to add useful and well-structured observability to source
 
 - [Claude Code](https://code.claude.com/docs) with plugin support
 - Python 3.10+ (standard library only -- no third-party dependencies)
-- A Datadog account: your [Datadog site](https://docs.datadoghq.com/getting_started/site/#access-the-datadog-site) and an API/Application key pair, used to fetch telemetry guidance
-- The `claude` CLI available on `PATH` (only needed if you enable on-commit telemetry
-  review)
+- A Datadog account: your [Datadog site](https://docs.datadoghq.com/getting_started/site/#access-the-datadog-site) and an API/Application key pair, used to fetch telemetry guidance. The Application Key should have `Datadog Standard Role` as its Owner Role
+- The `git` CLI available on `PATH`
+- The `claude` CLI available on `PATH` (needed if you enable on-commit telemetry review)
 
 ## Installation
 
