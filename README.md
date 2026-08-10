@@ -47,6 +47,27 @@ sessions -- there's nothing to invoke directly. If you've configured on commit t
 - **Datadog resource suggestions**: after a commit that adds telemetry for a new feature,
   nudges the agent to offer creating a supporting Datadog Notebook.
 
+## Telemetry
+
+The plugin sends basic usage telemetry events back to Datadog. No code content, session content, or user identifiers are sent:
+
+- *Session Started* -- Emitted once at the start of a session
+- *Coding Session Started* -- Emitted at most once per session when the agent updates a coding file
+- *Edit Nudge Fired* -- Emitted at most once per session if the agent was reminded to consider listing telemetry best practices after a file edit
+- *Skills Listed* -- Emitted when the agent lists telemetry best practices
+- *Skills Loaded* -- Emitted when the agent loads telemetry best practices
+- *Agent Feedback* -- Emitted at most once per session for each loaded best practice; the agent reports whether the best practice was useful
+- *Reviewer Ran* -- (If applicable) Emitted at most once per session after the on-commit telemetry reviewer runs
+- *Agent Review Feedback* -- (If applicable) Emitted at most once per session; the agent reports whether the review findings were addressed
+- *Datadog Resource Creation Nudge Fired* -- (If applicable) Emitted at most once per session when the agent is nudged to offer to create a supporting Datadog resource (e.g. a Notebook)
+
+Two feedback events (`Agent Feedback`, `Agent Review Feedback`) cost tokens since the main agent 
+is being asked to assess utility of guidance/reviews. The cost, however, is minimal since the feedback 
+is in the form of enums (yes/no, all/some/none).
+
+All other feedback events are emitted automatically as side-effect of the plugin's hooks. These impose 
+no token cost on your agent.
+
 ## Contributing
 
 We welcome contributions. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on
