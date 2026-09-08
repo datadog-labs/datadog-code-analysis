@@ -2,6 +2,15 @@
 # This product includes software developed at Datadog (https://www.datadoghq.com/) Copyright 2026 Datadog, Inc.
 
 import time
+from enum import Enum
+
+
+class Purpose(str, Enum):
+    CODING_SESSION = "coding-session"
+    PLUGIN_PREVIEW = "plugin-preview"
+
+    def __str__(self):
+        return self.value
 
 
 def _event(name, **metadata):
@@ -20,12 +29,12 @@ def coding_session_started():
     return _event("coding_session_started")
 
 
-def skills_listed():
-    return _event("skills_listed")
+def skills_listed(purpose=Purpose.CODING_SESSION):
+    return _event("skills_listed", purpose=purpose.value)
 
 
-def skill_loaded(skill_name):
-    return _event("skill_loaded", skill_name=skill_name)
+def skill_loaded(skill_name, purpose=Purpose.CODING_SESSION):
+    return _event("skill_loaded", skill_name=skill_name, purpose=purpose.value)
 
 
 def edit_nudge_fired():
@@ -59,3 +68,57 @@ def agent_feedback_submitted(
 
 def agent_feedback_submitted_post_review(resolved):
     return _event("agent_feedback_submitted_post_review", resolved=resolved)
+
+
+def impact_preview_submitted(
+    sessions_analyzed,
+    coding_sessions,
+    not_applicable,
+    no_improvement_needed,
+    could_be_improved,
+    insufficient_evidence,
+    opportunities_add,
+    opportunities_adjust,
+    opportunities_remove,
+):
+    return _event(
+        "impact_preview_submitted",
+        sessions_analyzed=sessions_analyzed,
+        coding_sessions=coding_sessions,
+        not_applicable=not_applicable,
+        no_improvement_needed=no_improvement_needed,
+        could_be_improved=could_be_improved,
+        insufficient_evidence=insufficient_evidence,
+        opportunities_add=opportunities_add,
+        opportunities_adjust=opportunities_adjust,
+        opportunities_remove=opportunities_remove,
+    )
+
+
+def impact_review_submitted(
+    sessions_analyzed,
+    coding_sessions,
+    coding_sessions_with_guidance,
+    coding_sessions_with_guidance_and_impact,
+    sessions_with_tel_added,
+    sessions_with_tel_updated,
+    sessions_with_tel_removed,
+    positive_net_outcomes,
+    neutral_net_outcomes,
+    negative_net_outcomes,
+    undetermined_net_outcomes,
+):
+    return _event(
+        "impact_review_submitted",
+        sessions_analyzed=sessions_analyzed,
+        coding_sessions=coding_sessions,
+        coding_sessions_with_guidance=coding_sessions_with_guidance,
+        coding_sessions_with_guidance_and_impact=coding_sessions_with_guidance_and_impact,
+        sessions_with_tel_added=sessions_with_tel_added,
+        sessions_with_tel_updated=sessions_with_tel_updated,
+        sessions_with_tel_removed=sessions_with_tel_removed,
+        positive_net_outcomes=positive_net_outcomes,
+        neutral_net_outcomes=neutral_net_outcomes,
+        negative_net_outcomes=negative_net_outcomes,
+        undetermined_net_outcomes=undetermined_net_outcomes,
+    )

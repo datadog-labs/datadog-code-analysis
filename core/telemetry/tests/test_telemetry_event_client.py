@@ -18,8 +18,17 @@ EVENT_CASES = [
         {"on_commit_telemetry_review_enabled": True, "resource_suggestions_enabled": True},
     ),
     (events.coding_session_started(), "coding_session_started", {}),
-    (events.skills_listed(), "skills_listed", {}),
-    (events.skill_loaded("my-skill"), "skill_loaded", {"skill_name": "my-skill"}),
+    (events.skills_listed(), "skills_listed", {"purpose": "coding-session"}),
+    (
+        events.skill_loaded("my-skill"),
+        "skill_loaded",
+        {"skill_name": "my-skill", "purpose": "coding-session"},
+    ),
+    (
+        events.skill_loaded("my-skill", events.Purpose.PLUGIN_PREVIEW),
+        "skill_loaded",
+        {"skill_name": "my-skill", "purpose": "plugin-preview"},
+    ),
     (events.edit_nudge_fired(), "edit_nudge_fired", {}),
     (
         events.ddog_resource_nudge_fired("notebook"),
@@ -42,6 +51,38 @@ EVENT_CASES = [
         events.agent_feedback_submitted_post_review("all"),
         "agent_feedback_submitted_post_review",
         {"resolved": "all"},
+    ),
+    (
+        events.impact_preview_submitted(5, 4, 1, 1, 2, 1, 3, 2, 1),
+        "impact_preview_submitted",
+        {
+            "sessions_analyzed": 5,
+            "coding_sessions": 4,
+            "not_applicable": 1,
+            "no_improvement_needed": 1,
+            "could_be_improved": 2,
+            "insufficient_evidence": 1,
+            "opportunities_add": 3,
+            "opportunities_adjust": 2,
+            "opportunities_remove": 1,
+        },
+    ),
+    (
+        events.impact_review_submitted(10, 6, 4, 2, 1, 1, 1, 1, 1, 0, 0),
+        "impact_review_submitted",
+        {
+            "sessions_analyzed": 10,
+            "coding_sessions": 6,
+            "coding_sessions_with_guidance": 4,
+            "coding_sessions_with_guidance_and_impact": 2,
+            "sessions_with_tel_added": 1,
+            "sessions_with_tel_updated": 1,
+            "sessions_with_tel_removed": 1,
+            "positive_net_outcomes": 1,
+            "neutral_net_outcomes": 1,
+            "negative_net_outcomes": 0,
+            "undetermined_net_outcomes": 0,
+        },
     ),
 ]
 
@@ -98,7 +139,10 @@ class TelemetryEventClientTest(unittest.TestCase):
         self.assertEqual(attributes["session_id"], "sid")
         self.assertEqual(attributes["plugin_version"], "1.2.3")
         self.assertEqual(attributes["events"][0]["name"], "skill_loaded")
-        self.assertEqual(attributes["events"][0]["metadata"], {"skill_name": "my-skill"})
+        self.assertEqual(
+            attributes["events"][0]["metadata"],
+            {"skill_name": "my-skill", "purpose": "coding-session"},
+        )
 
     def test_batches_multiple_events_into_one_request(self):
         batch = [events.edit_nudge_fired(), events.coding_session_started(), events.reviewer_ran(2)]

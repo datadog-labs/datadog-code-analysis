@@ -1,6 +1,6 @@
 {
   "name": "datadog-code-analysis",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Surfaces Datadog best practices and telemetry guidance at coding time, so your agent considers observability from the start.",
   "author": {
     "name": "Datadog",

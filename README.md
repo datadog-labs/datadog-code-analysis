@@ -40,12 +40,26 @@ Or install interactively from within a Claude Code session:
 ## Usage
 
 Once installed, the plugin runs automatically in the background during your Claude Code
-sessions -- there's nothing to invoke directly. If you've configured on commit telemetry review or datadog resource suggestions:
+sessions. If you've configured on commit telemetry review or datadog resource suggestions:
 
 - **On-commit telemetry review**: after each commit, reviews the diff against Datadog
   guidance and reports any observability gaps back into your session as suggestions.
 - **Datadog resource suggestions**: after a commit that adds telemetry for a new feature,
   nudges the agent to offer creating a supporting Datadog Notebook.
+
+Two slash commands are also available to review the plugin's impact on your work:
+
+- **`/impact-preview [number of sessions]`**: scans recent Claude Code sessions that did
+  *not* use the plugin and estimates where its current telemetry guidance might have been
+  relevant.
+- **`/impact-review [number of sessions]`**: scans recent Claude Code sessions that *did*
+  use the plugin and summarizes where and how its telemetry guidance affected the
+  implementation.
+
+Both commands analyze local session transcripts only and print their report directly in
+your session. At the end of each report, you're asked whether you're willing to share the
+resulting counts with Datadog -- no prompts, file paths, code, or session content are ever
+sent, and nothing is sent unless you explicitly agree.
 
 ## Filesystem and network access
 
@@ -94,6 +108,8 @@ The plugin sends basic usage telemetry events back to Datadog. No code content, 
 - *Reviewer Ran* -- (If applicable) Emitted at most once per session after the on-commit telemetry reviewer runs
 - *Agent Review Feedback* -- (If applicable) Emitted at most once per session; the agent reports whether the review findings were addressed
 - *Datadog Resource Creation Nudge Fired* -- (If applicable) Emitted at most once per session when the agent is nudged to offer to create a supporting Datadog resource (e.g. a Notebook)
+- *Impact Preview Submitted* -- (If applicable) Emitted when you run `/impact-preview` and explicitly agree to share the resulting session/opportunity counts
+- *Impact Review Submitted* -- (If applicable) Emitted when you run `/impact-review` and explicitly agree to share the resulting session/impact counts
 
 Two feedback events (`Agent Feedback`, `Agent Review Feedback`) cost tokens since the main agent 
 is being asked to assess utility of guidance/reviews. The cost, however, is minimal since the feedback 

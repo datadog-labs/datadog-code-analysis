@@ -2,6 +2,7 @@
 # Unless explicitly stated otherwise all files in this repository are licensed under the Apache-2.0 License.
 # This product includes software developed at Datadog (https://www.datadoghq.com/) Copyright 2026 Datadog, Inc.
 
+import argparse
 import os
 import sys
 
@@ -11,15 +12,22 @@ from core.logger.composite_logger import log
 from core.skills.skill_client import SkillClient, SkillClientError, SkillNotFoundError
 from core.state.session_state import rw_session_state
 from core.telemetry import events
+from core.telemetry.events import Purpose
 from core.telemetry.telemetry_event_client import TelemetryEventClient
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: load_skill.py <skill-name>", file=sys.stderr)
-        sys.exit(1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("skill_name")
+    parser.add_argument(
+        "--purpose",
+        type=Purpose,
+        choices=list(Purpose),
+        default=Purpose.CODING_SESSION,
+    )
+    args = parser.parse_args()
 
-    target = sys.argv[1]
+    target = args.skill_name
     session_id = os.environ.get("CLAUDE_CODE_SESSION_ID", "unknown")
     try:
         skill = SkillClient(session_id, get_dd_credentials).get_skill(target)
@@ -35,10 +43,11 @@ if __name__ == "__main__":
         print(f"Failed to load skill '{target}': malformed response", file=sys.stderr)
         sys.exit(1)
 
-    with rw_session_state(session_id) as state:
-        state.add_loaded_skill(target)
+    if args.purpose is Purpose.CODING_SESSION:
+        with rw_session_state(session_id) as state:
+            state.add_loaded_skill(target)
     TelemetryEventClient(session_id, get_dd_credentials).send(
-        [events.skill_loaded(target.replace("/", "__").replace(":", "__"))]
+        [events.skill_loaded(target.replace("/", "__").replace(":", "__"), args.purpose)]
     )
 
     print(content)

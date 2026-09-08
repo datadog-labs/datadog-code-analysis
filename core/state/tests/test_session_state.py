@@ -12,6 +12,7 @@ from core.state.session_state import (
     ReadWriteSessionState,
     ro_session_state,
     rw_session_state,
+    session_state_file,
 )
 
 
@@ -106,6 +107,15 @@ class ReadWriteSessionStateTest(unittest.TestCase):
     def test_inherits_read_only_getters(self):
         state = ReadWriteSessionState({"repo_root": "/repo"})
         self.assertEqual(state.get_repo_root(), "/repo")
+
+
+class SessionStateFileTest(unittest.TestCase):
+    def test_builds_default_and_custom_paths(self):
+        with patch("core.state.session_state.app_home", return_value="/app"):
+            self.assertEqual(session_state_file("sid"), os.path.join("/app", "state", "sid.json"))
+
+        state_dir = os.path.join("other", "state")
+        self.assertEqual(session_state_file("sid", state_dir), os.path.join(state_dir, "sid.json"))
 
 
 class StateFileTestCase(unittest.TestCase):
