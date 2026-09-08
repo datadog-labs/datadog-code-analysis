@@ -47,6 +47,40 @@ sessions -- there's nothing to invoke directly. If you've configured on commit t
 - **Datadog resource suggestions**: after a commit that adds telemetry for a new feature,
   nudges the agent to offer creating a supporting Datadog Notebook.
 
+## Filesystem and network access
+
+The plugin reads/writes outside your project directory. Please ensure your session has
+read/write access to the following:
+
+- `~/.dd-code-analysis/` -- plugin home directory. Holds per-session plugin state, like
+  whether the session loaded best practices and which best practices were loaded.
+- The OS temp directory (`$TMPDIR`, typically `/tmp`) -- holds a per-session debug log
+  (`dd-code-analysis-plugin-<session_id>.log`) and, during on-commit telemetry review,
+  a short-lived diff file (`dd-code-analysis-plugin-<session_id>-review-*.diff`) that's
+  deleted after the review runs.
+
+The plugin also makes outbound requests to Datadog to fetch telemetry best practices and
+send the usage telemetry described below. Please ensure your session can reach
+`https://api.<your-datadog-site>`.
+
+If you're running Claude Code with the [sandboxed Bash tool](https://code.claude.com/docs/en/sandboxing),
+you may need to explicitly grant access to these locations, e.g. in `~/.claude/settings.json`
+(the OS temp directory is writable by default, so only `~/.dd-code-analysis` and the Datadog
+API domain need to be added):
+
+```json
+{
+  "sandbox": {
+    "filesystem": {
+      "allowWrite": ["~/.dd-code-analysis"]
+    },
+    "network": {
+      "allowedDomains": ["api.<your-datadog-site>"]
+    }
+  }
+}
+```
+
 ## Telemetry
 
 The plugin sends basic usage telemetry events back to Datadog. No code content, session content, or user identifiers are sent:
