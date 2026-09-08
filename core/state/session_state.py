@@ -13,8 +13,14 @@ except ImportError:  # Windows
 from core.env.paths import app_home
 
 
+def session_state_file(session_id, state_dir=None):
+    if state_dir is None:
+        state_dir = os.path.join(app_home(), "state")
+    return os.path.join(state_dir, f"{session_id}.json")
+
+
 def session_file(session_id, suffix):
-    return ReadOnlySessionState._state_path(session_id) + suffix
+    return session_state_file(session_id) + suffix
 
 
 class ReadOnlySessionState:
@@ -27,7 +33,7 @@ class ReadOnlySessionState:
 
     @classmethod
     def _state_path(cls, session_id):
-        return os.path.join(cls._state_dir(), f"{session_id}.json")
+        return session_state_file(session_id, cls._state_dir())
 
     @classmethod
     def _read_data(cls, session_id):
